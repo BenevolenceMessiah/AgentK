@@ -103,6 +103,7 @@ timeout /t -1
 echo Copy .env.example to .env
 echo Set environment variables in .env
 docker compose run --rm agentk
+timeout /t -1
 :: start call ./agentk
 goto Menu1
 
