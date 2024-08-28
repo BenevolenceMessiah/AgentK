@@ -47,7 +47,7 @@ timeout /t 3
 echo As-salamu alaykum!!
 echo detecting presence of repo, git cloning if not detected...
 echo ---------------------------------------------------------------
-if exist docs\ goto Menu1
+if exist tools\ goto Menu1
 git clone https://github.com/BenevolenceMessiah/AgentK.git
 cd AgentK
 git pull
@@ -67,11 +67,13 @@ echo ---------------------------------------------------------------
 :Menu1
 echo ---------------------------------------------------------------
 echo Please choose from the following options:
-echo Note: These options are all case sensitive.
-echo Press Ctrl+c to exit at any time!
+echo - These options are all case sensitive.
+echo - Make sure Docker Desktop is up and running on your system!
+echo - Press Ctrl+c to exit at any time!
 echo ---------------------------------------------------------------
 echo 1) Install AgentK
 echo 2) Run AgentK
+echo 3) Install Docker Desktop (if you don't have it installed)
 echo C) Exit
 echo U) Update repo.
 echo ---------------------------------------------------------------
@@ -79,6 +81,7 @@ echo ---------------------------------------------------------------
 set /P option=Enter your choice:
 if %option% == 1 goto Install
 if %option% == 2 goto Run
+if %option% == 3 goto DockerDesktop
 if %option% == C goto End
 if %option% == U goto Updater
 
@@ -94,11 +97,13 @@ if not exist venv (
 echo Activating virtual environment
 call .venv\Scripts\activate
 echo --------------------------------------------------------------
+python.exe -m pip install --upgrade pip
 pip install docker
-echo Copy .env.template to .env
-echo Set environment variables in .env
 timeout /t -1
-start call ./agentk
+echo Copy .env.example to .env
+echo Set environment variables in .env
+docker compose run --rm agentk
+:: start call ./agentk
 goto Menu1
 
 :Run
@@ -115,8 +120,25 @@ if not exist venv (
 echo Activating virtual environment
 call .venv\Scripts\activate
 echo ---------------------------------------------------------------
-start call ./agentk
+:: start call ./agentk
+docker compose run --rm agentk
 goto Menu1
+
+:DockerDesktop
+echo Installing Docker Desktop
+echo ---------------------------------------------------------------
+cd /d %~dp0
+call curl "https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe?utm_source=docker&utm_medium=webreferral&utm_campaign=dd-smartbutton&utm_location=module" -o docker-desktop-installer.exe
+start call docker-desktop-installer.exe
+echo Once the install is complete, continue.
+echo ---------------------------------------------------------------
+timeout /t -1
+echo Restarting...
+echo Deleting installer .exe file if it exists...
+echo ---------------------------------------------------------------
+if exist docker-desktop-installer.exe del docker-desktop-installer.exe
+start call Run_AgentK.bat
+exit
 
 :Updater
 echo ---------------------------------------------------------------
